@@ -4,6 +4,8 @@
 
 from numpy import arange, concatenate, zeros, linspace, floor, array, pi
 from numpy import sin, cos, sqrt, random, histogram, abs, sqrt, max
+import numpy as np
+from time import time
 
 import matplotlib.pyplot as plt # Matplotlib plotting library
 
@@ -267,6 +269,20 @@ def twostream(npart, L, vbeam=2):
     return pos,vel
 
 ####################################################################
+#
+# Function for saving the First Harmonic Time data (s.t) and amplitude (s.firstharmonic). 
+
+def SaveSummary(npart,L,ncells):
+    """
+    Saves the first harmonic amplitude and time data to a .txt file. A "Summary" object named "s" must be initialised before running this (by default this is done in diagnostics_to_run below).  
+    Data is saved into ./savedata/{npart}_{L}_{ncells}.txt (i.e. uses the parameters as filenaming scheme).
+    The first column is time, and the second is amplitude, with a comma "," delimiter.
+    """
+    output = np.transpose([s.t,s.firstharmonic])
+    np.savetxt("./savedata/{}_{}_{}.txt".format(npart,L,ncells), # filepath and filename
+               output, delimiter=",", fmt='%.15f')
+
+    # print("{},{}".format(s.t[1],s.firstharmonic[1]))
 
 if __name__ == "__main__":
     # Generate initial condition
@@ -286,8 +302,9 @@ if __name__ == "__main__":
     # Create some output classes
     p = Plot(pos, vel, ncells, L) # This displays an animated figure - Slow!
     s = Summary()                 # Calculates, stores and prints summary info
+    start = time()                # Start timer  
 
-    diagnostics_to_run = [p, s]   # Remove p to get much faster code!
+    diagnostics_to_run = [s]   # Remove p to get much faster code!
     
     # Run the simulation
     pos, vel = run(pos, vel, L, ncells, 
@@ -303,6 +320,7 @@ if __name__ == "__main__":
     plt.yscale('log')
     
     plt.ioff() # This so that the windows stay open
+    end = time()                        # End timer 
+    print("Runtime:",end - start)    # Show time taken
     plt.show()
-    
-    
+    SaveSummary(npart,L,ncells)
