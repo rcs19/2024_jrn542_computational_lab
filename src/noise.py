@@ -21,12 +21,13 @@ def Get_Signal_and_Noise():
         else:
             last_signal = peaks_xindex[-1]  # If there is no noise
         
-
-    plt.plot(xdata, ydata)
+    plt.axvline(x=xdata[last_signal], c="black", linestyle="--",label="Last peak before noise-dominated")
+    plt.plot(xdata, ydata,label="Signal")
     plt.xlabel("Time [Normalised]")
     plt.ylabel("First harmonic amplitude [Normalised]")
     plt.yscale('log')    
     plt.ioff() # This so that the windows stay open
+    plt.legend()
     plt.show()
 
 Get_Signal_and_Noise()
