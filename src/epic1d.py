@@ -4,6 +4,7 @@
 
 from numpy import arange, concatenate, zeros, linspace, floor, array, pi
 from numpy import sin, cos, sqrt, random, histogram, abs, sqrt, max
+from scipy import signal
 import numpy as np
 from time import time
 
@@ -278,9 +279,8 @@ def SaveSummary(npart,L,ncells):
     Data is saved into ./savedata/{npart}_{L}_{ncells}.txt (i.e. uses the parameters as filenaming scheme).
     The first column is time, and the second is amplitude, with a comma "," delimiter.
     """
-    output = np.transpose([s.t,s.firstharmonic])
-    np.savetxt("./savedata/{}_{}_{}.txt".format(npart,L,ncells), # filepath and filename
-               output, delimiter=",", fmt='%.15f')
+    output = np.array([s.t,s.firstharmonic])
+    np.savetxt("./savedata/{}_{}_{}.txt".format(npart,L,ncells), output, delimiter=",", fmt='%.15f')
 
     # print("{},{}".format(s.t[1],s.firstharmonic[1]))
 
@@ -304,23 +304,26 @@ if __name__ == "__main__":
     s = Summary()                 # Calculates, stores and prints summary info
     start = time()                # Start timer  
 
-    diagnostics_to_run = [s]   # Remove p to get much faster code!
+    diagnostics_to_run = [ s]   # Remove p to get much faster code!
     
     # Run the simulation
     pos, vel = run(pos, vel, L, ncells, 
                    out = diagnostics_to_run,        # These are called each output step
-                   output_times=linspace(0.,20,50)) # The times to output
+                   output_times=linspace(0.,20,50)) # The times to output (50 times between t=0 and t=20)
     
     # Summary stores an array of the first-harmonic amplitude
     # Make a semilog plot to see exponential damping
     plt.figure()
     plt.plot(s.t, s.firstharmonic)
+
+    # (Scatter) Plotting the peaks of the first harmonic 
+    peaks, _ = signal.find_peaks(s.firstharmonic)
+    plt.scatter(np.array(s.t)[peaks],np.array(s.firstharmonic)[peaks], marker="x", c="r")
+
     plt.xlabel("Time [Normalised]")
     plt.ylabel("First harmonic amplitude [Normalised]")
-    plt.yscale('log')
-    
+    plt.yscale('log')    
     plt.ioff() # This so that the windows stay open
-    end = time()                        # End timer 
-    print("Runtime:",end - start)    # Show time taken
     plt.show()
-    SaveSummary(npart,L,ncells)
+
+    # SaveSummary(npart,L,ncells)
