@@ -10,7 +10,8 @@ def fft(x,y):
     """Perform a Fast Fourier Transform given (x,y) arrays of data."""
     simulation_time = x.max()-x.min()
     sample_rate = len(x)/simulation_time 
-    N = len(x)                # number of samples
+    N = len(x)  # number of samples, depends on how much signal we have
+    # print(f"Sample Rate: {sample_rate:.3f}, N: {N}")
     fft_y = rfft(y)     
     fft_x = rfftfreq(N, d = 1 / sample_rate) # (N = number of samples, d = sample spacing)
     return fft_x, np.abs(fft_y)
@@ -89,25 +90,31 @@ def Signal_vs_Noise():
 
 def Find_Frequency():
     """
-    Finds the first peak frequency in the 
+    Finds the most significant frequency in the signal. 
     """
     x_fft, y_fft =  fft(xdata[:last_signal_index+1], ydata[:last_signal_index+1])
     peaks, properties = signal.find_peaks(y_fft)
+    print(f"Peaks: {peaks}")
+
     maxpeak_index = peaks[np.argmax(y_fft[peaks])]
     signal_maxpeak_freq = x_fft[maxpeak_index]
     signal_maxpeak_amp = y_fft[maxpeak_index]
-
     condition = (x_fft>0.1) & (x_fft<2)
     x_fft = x_fft[condition]
     y_fft = y_fft[condition]
+
+    print(f"Signal Max Peak Frequency: {signal_maxpeak_freq:.3f} Hz, Signal Max Peak Amplitude: {signal_maxpeak_amp:.3f} ")
+
     plt.plot(x_fft,y_fft)
+    plt.xlabel("Frequency")
+    plt.ylabel("Amplitude")
     plt.show()
     def gaussian(x, *params):   
-        A, x0, c, y0 = params
-        return y0 + A * np.exp(-((x - x0) / (np.sqrt(2) * c))**2)
+        A, x0, c, y0, m = params
+        return m*x + y0 + A * np.exp(-((x - x0) / (np.sqrt(2) * c))**2) # Gaussian with linear baseline
 
     # Initial guesses
-    guess = [signal_maxpeak_amp, signal_maxpeak_freq, 0.1, 0]
+    guess = [signal_maxpeak_amp, signal_maxpeak_freq, 0.1, 0, 0]
 
     try:
         popt, pcov = curve_fit(gaussian, x_fft, y_fft, p0=guess, maxfev=5000)
@@ -135,7 +142,8 @@ def Find_Frequency():
 
 if __name__ == "__main__":
 
-    file = np.loadtxt("savedata/session2_repeats/1000_12.566370614359172_20-3.txt", delimiter=",")
+    file = np.loadtxt("savedata/session2_repeats/1000_12.566370614359172_20-1.txt", delimiter=",")
+    # file = np.loadtxt("savedata/1000_12.566370614359172_20.txt", delimiter=",")
     xdata = np.array(file[0])
     ydata = np.array(file[1])
 
