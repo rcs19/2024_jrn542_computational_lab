@@ -280,7 +280,8 @@ def SaveSummary(npart,L,ncells):
     The first column is time, and the second is amplitude, with a comma "," delimiter.
     """
     output = np.array([s.t,s.firstharmonic])
-    np.savetxt("./savedata/{}_{}_{}.txt".format(npart,L,ncells), output, delimiter=",", fmt='%.15f')
+    L_pi = L/np.pi
+    np.savetxt("./savedata/N{}_L{:.1f}pi_Ncells{}.txt".format(npart,L_pi,ncells), output, delimiter=",", fmt='%.15f')
 
     # print("{},{}".format(s.t[1],s.firstharmonic[1]))
 
@@ -326,4 +327,4 @@ if __name__ == "__main__":
     plt.ioff() # This so that the windows stay open
     plt.show()
 
-    # SaveSummary(npart,L,ncells)
+    SaveSummary(npart,L,ncells)
