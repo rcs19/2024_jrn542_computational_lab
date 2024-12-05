@@ -273,7 +273,7 @@ def twostream(npart, L, vbeam=2):
 #
 # Function for saving the First Harmonic Time data (s.t) and amplitude (s.firstharmonic). 
 
-def SaveSummary(npart,L,ncells):
+def SaveSummary(npart,L,ncells,timetaken):
     """
     Saves the first harmonic amplitude and time data to a .txt file. A "Summary" object named "s" must be initialised before running this (by default this is done in diagnostics_to_run below).  
     Data is saved into ./savedata/{npart}_{L}_{ncells}.txt (i.e. uses the parameters as filenaming scheme).
@@ -281,9 +281,41 @@ def SaveSummary(npart,L,ncells):
     """
     output = np.array([s.t,s.firstharmonic])
     L_pi = L/np.pi
-    np.savetxt("./savedata/N{}_L{:.1f}pi_Ncells{}.txt".format(npart,L_pi,ncells), output, delimiter=",", fmt='%.15f')
+    np.savetxt(f"./savedata/N{npart}_L{L_pi:.1f}pi_Ncells{ncells}_T{timetaken:.4f}.txt", output, delimiter=",", fmt='%.15f')
 
     # print("{},{}".format(s.t[1],s.firstharmonic[1]))
+
+def Run_and_Save(npart=1000, cell_length=4.*np.pi, ncells=20):
+
+    if False:
+        # 2-stream instability
+        L = 100
+        ncells = 20
+        pos, vel = twostream(npart, L, 3.) # Might require more npart than Landau!
+    else:
+        # Landau damping
+        L = cell_length
+        ncells = ncells
+        pos, vel = landau(npart, L)
+    
+    start_t = time()    # Start time
+
+    # Create some output classes
+    s = Summary()                 # Calculates, stores and prints summary info
+
+    diagnostics_to_run = [s]   # Remove p to get much faster code!
+    
+    # Run the simulation
+    pos, vel = run(pos, vel, L, ncells, 
+                   out = diagnostics_to_run,        # These are called each output step
+                   output_times=linspace(0.,20,50)) # The times to output (50 times between t=0 and t=20)
+    
+    end_t = time()
+    timetaken = end_t - start_t
+
+    output = np.array([s.t,s.firstharmonic])
+    L_pi = L/np.pi
+    np.savetxt(f"./savedata/N{npart}_L{L_pi:.1f}pi_Ncells{ncells}_T{timetaken:.4f}.txt", output, delimiter=",", fmt='%.15f')
 
 if __name__ == "__main__":
     # Generate initial condition
@@ -303,9 +335,8 @@ if __name__ == "__main__":
     # Create some output classes
     p = Plot(pos, vel, ncells, L) # This displays an animated figure - Slow!
     s = Summary()                 # Calculates, stores and prints summary info
-    start = time()                # Start timer  
 
-    diagnostics_to_run = [ s]   # Remove p to get much faster code!
+    diagnostics_to_run = [s]   # Remove p to get much faster code!
     
     # Run the simulation
     pos, vel = run(pos, vel, L, ncells, 
