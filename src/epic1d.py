@@ -288,7 +288,7 @@ def SaveSummary(npart,L,ncells):
 if __name__ == "__main__":
     # Generate initial condition
     # 
-    npart = 1000   
+    npart = 5000   
     if False:
         # 2-stream instability
         L = 100
@@ -327,4 +327,4 @@ if __name__ == "__main__":
     plt.ioff() # This so that the windows stay open
     plt.show()
 
-    SaveSummary(npart,L,ncells)
+    # SaveSummary(npart,L,ncells)
