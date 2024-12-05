@@ -4,7 +4,7 @@ import pandas as pd
 import os
 
 def generate():
-    ncells_list = arange(110,201,10)
+    ncells_list = arange(10,201,10)
     for ncells in ncells_list:
         Run_and_Save(npart=5000, ncells=ncells)
 
@@ -12,7 +12,7 @@ def plot_directory():
     directory = 'savedata/session2_variations_05-12-2024'
 
     # Dataframe (Table.csv) format
-    columns = ['npart','L','ncells','runtime','damp', 'damp_std', 'snr', 'omega', 'omega_std']
+    columns = ['npart','L','ncells','runtime','damp', 'damp_std', 'noise_level', 'omega', 'omega_std']
     rows = []
 
     for filename in os.listdir(directory):
@@ -21,7 +21,7 @@ def plot_directory():
         except:
             print(f"Error file not found.")
             break
-        
+
         print(filename)
         # Unpacking data from filename
         filename_elements = filename.split('_')      
@@ -38,6 +38,6 @@ def plot_directory():
         
     df = pd.DataFrame(rows, columns=columns)
     df = df.sort_values(by='ncells',ignore_index=True)
-    print(df)
+    df.to_csv("variations_ncells_10-to-200.csv", index=False)  
 
 plot_directory()
