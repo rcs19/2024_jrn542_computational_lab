@@ -6,6 +6,32 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt # Matplotlib plotting library
 
+def Unpack_data(filepath):
+    file = np.loadtxt(filepath, delimiter=",")
+
+    xdata = np.array(file[0])
+    ydata = np.array(file[1])
+
+    # Finding the peaks of the first harmonic plot  #
+    peaks_xindex, peaks_properties = signal.find_peaks(ydata)
+    peaks_xindex = np.insert(peaks_xindex,0,0)      # insert index 0 as a peak
+    peaks_value = ydata[peaks_xindex]
+    
+    # Iteratres through peaks, if next peak is larger than previous then remove peak #
+    for i, val in enumerate(peaks_value):         
+        try:
+            if peaks_value[i+1]>peaks_value[i]:       # Compares if next peak is greater than this peak
+                last_signal_index = peaks_xindex[i]   # Last peak before the signal is dominated by noise
+                noise_present = True
+                break
+            else:
+                continue
+        except:
+            last_signal_index = peaks_xindex[-1]  # If there is no noise
+            noise_present = False
+            
+    return xdata, ydata, peaks_xindex, last_signal_index, noise_present
+
 def fft(x,y):
     """Perform a Fast Fourier Transform given (x,y) arrays of data.
     
@@ -20,13 +46,14 @@ def fft(x,y):
     fft_x = rfftfreq(N, d = 1 / sample_rate) # (N = number of samples, d = sample spacing)
     return fft_x, np.abs(fft_y)
 
-def Signal_vs_Noise(show_plot=False):
+def Signal_vs_Noise(filepath, show_plot=False):
     """
     Returns:
     - slope: damping rate
     - std_error: damping rate error (from linear regression)
     - snr: signal-to-noise ratio. `np.nan` if completely signal dominated
     """
+    xdata, ydata, peaks_xindex, last_signal_index, noise_present = Unpack_data(filepath)
     # Linear fitting the signal peaks 
     signal_peaks_xindex = peaks_xindex[peaks_xindex<last_signal_index+1]   # obtain indices for all peaks below last signal dominated peak
     y_peaks_signal = ydata[signal_peaks_xindex]
@@ -68,7 +95,6 @@ def Signal_vs_Noise(show_plot=False):
     if noise_present:
         signal_maxpeak_val = fft_signal_y[signal_peak_indexes].max()
         noise_maxpeak_val = fft_noise_y[noise_peak_indexes].max()
-        print(signal_maxpeak_val,noise_maxpeak_val)
 
         SNR = signal_maxpeak_val/noise_maxpeak_val
         print(f"SNR = {SNR:.3f}")
@@ -98,13 +124,15 @@ def Signal_vs_Noise(show_plot=False):
         print("No noise detected (data is completely signal dominated), cannot find SNR.")
         return slope, std_err, np.nan
 
-def Find_Frequency(show_plot=False):
+def Find_Frequency(filepath, show_plot=False):
     """
     Finds the most significant frequency in the signal by fitting a gaussian to largest peak. 
     Returns:
     - omega: angular frequency
     - omega_std: angular frequency error (standard deviation of gaussian)
     """
+    xdata, ydata, peaks_xindex, last_signal_index, noise_present = Unpack_data(filepath)
+
     x_fft, y_fft =  fft(xdata[:last_signal_index+1], ydata[:last_signal_index+1])
     peaks, properties = signal.find_peaks(y_fft)
 
@@ -159,28 +187,7 @@ def Find_Frequency(show_plot=False):
 
 if __name__ == "__main__":
 
-    # file = np.loadtxt("savedata/session2_repeats/1000_12.566370614359172_20-3.txt", delimiter=",")
-    file = np.loadtxt("savedata/200000_12.566370614359172_20.txt", delimiter=",")
-    xdata = np.array(file[0])
-    ydata = np.array(file[1])
-
-    # Finding the peaks of the first harmonic plot  #
-    peaks_xindex, peaks_properties = signal.find_peaks(ydata)
-    peaks_xindex = np.insert(peaks_xindex,0,0)      # insert index 0 as a peak
-    peaks_value = ydata[peaks_xindex]
+    filepath = "savedata/session2_repeats_05-12-2024/N5000_L4.0pi_Ncells20_5.txt"
     
-    # Iteratres through peaks, if next peak is larger than previous then remove peak #
-    for i, val in enumerate(peaks_value):         
-        try:
-            if peaks_value[i+1]>peaks_value[i]:       # Compares if next peak is greater than this peak
-                last_signal_index = peaks_xindex[i]   # Last peak before the signal is dominated by noise
-                noise_present = True
-                break
-            else:
-                continue
-        except:
-            last_signal_index = peaks_xindex[-1]  # If there is no noise
-            noise_present = False
-
-    Signal_vs_Noise(show_plot=True)
-    Find_Frequency(show_plot=True)
+    Signal_vs_Noise(filepath, show_plot=True)
+    Find_Frequency(filepath, show_plot=True)
