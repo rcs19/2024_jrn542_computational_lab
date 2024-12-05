@@ -14,10 +14,19 @@ fig, ax = plt.subplots(len(ydatas), sharex=True)
 # Iterate through chosen y-variables and plot on a separate axis each
 for i, var in enumerate(ydatas):
     ydata = df[var]
-    # yerr = df[f'{var}_std']
-    # ax[i].fill_between(xdata,ydata-yerr,ydata+yerr, alpha=0.2, label='Standard Deviation') # Plot error as shaded region 
-    ax[i].plot(xdata,ydata,)
+    ax[i].plot(xdata,ydata,label='Data')
     ax[i].set_ylabel(var)
+
+    try:
+        yerr = df[f'{var}_std']
+        ax[i].fill_between(xdata,ydata-yerr,ydata+yerr, alpha=0.2, label='Error') # Plot error as shaded region 
+    except:
+        print("No error")
+    if var=='damp':
+        ax[i].axhline(-0.153, color = "black", ls="--", label="Analytical Result")
+    elif var=='omega':
+        ax[i].axhline(1.413, color = "black", ls="--", label="Analytical Result")
+
     
 ax[0].set_title('Parameters vs Number of Cells')
 ax[-1].set_xlabel('Number of Cells')
