@@ -1,0 +1,78 @@
+
+def Signal_vs_Noise(filepath, show_plot=False):
+    """
+    Returns:
+    - slope: damping rate
+    - std_error: damping rate error (from linear regression)
+    - snr: signal-to-noise ratio. `np.nan` if completely signal dominated
+    """
+    xdata, ydata, peaks_xindex, last_signal_index, noise_present = Unpack_data(filepath)
+    # Linear fitting the signal peaks 
+    signal_peaks_xindex = peaks_xindex[peaks_xindex<last_signal_index+1]   # obtain indices for all peaks below last signal dominated peak
+    y_peaks_signal = ydata[signal_peaks_xindex]
+    x_peaks_signal = xdata[signal_peaks_xindex]
+
+    # Transforming to log before fitting linear regression.
+    log_y = np.log(y_peaks_signal)
+    slope, intercept, r_val, p_val, std_err = linregress(x_peaks_signal, log_y)
+    log_y_line = slope * x_peaks_signal + intercept
+    y_line = np.exp(log_y_line)                     # Transform back to original y-scale
+    print(f"Linear-Log Fit Slope = {slope:.3f} ± {std_err:.3f}")
+
+    if show_plot:
+        # Semi-log plot for exponential damping
+        fig, ax = plt.subplots(figsize=(8,5))
+
+        ax.axvline(x=xdata[last_signal_index], c="black", linestyle="--",label="Last peak before noise-dominated")
+        ax.plot(xdata[:last_signal_index+1], ydata[:last_signal_index+1],label="Signal")
+        ax.plot(xdata[last_signal_index:], ydata[last_signal_index:],label="Noise", color="red")
+        ax.plot(x_peaks_signal, y_line, label=f"Linear-Log Fit\nSlope = {slope:.3f} ± {std_err:.3f}")
+
+        ax.set_xlabel("Time [Normalised]")
+        ax.set_ylabel("First harmonic amplitude [Normalised]")
+        ax.set_yscale('log')    
+        ax.set_title("Damping of First Harmonic Amplitude")
+        ax.legend()
+
+    #                                                                            #
+    #  Fast Fourier transform of signal dominated part and noise dominated part  #
+    #                                                                            #
+    fft_signal_x, fft_signal_y =  fft(xdata[:last_signal_index+1], ydata[:last_signal_index+1])
+    fft_noise_x, fft_noise_y = fft(xdata[last_signal_index:],ydata[last_signal_index:])
+
+    # Plotting FFT
+    signal_peak_indexes = signal.find_peaks(fft_signal_y)[0]
+    noise_peak_indexes = signal.find_peaks(fft_noise_y)[0]
+
+    # Signal-to-Noise Ratio (SNR)
+    if noise_present:
+        signal_maxpeak_val = fft_signal_y[signal_peak_indexes].max()
+        noise_maxpeak_val = fft_noise_y[noise_peak_indexes].max()
+
+        SNR = signal_maxpeak_val/noise_maxpeak_val
+        print(f"SNR = {SNR:.3f}")
+
+    if show_plot:
+        fig2, ax2 = plt.subplots(2,1, figsize = (8,4), sharex=True, sharey=True)
+        fig2.subplots_adjust(hspace=0)
+        ax2[0].scatter(fft_signal_x[signal_peak_indexes],fft_signal_y[signal_peak_indexes], c="r", zorder=5)
+        ax2[0].plot(fft_signal_x,fft_signal_y)
+        ax2[0].set_ylabel("Amplitude")
+        ax2[0].text(0.96,0.8,"Signal Dominated", horizontalalignment='right', transform=ax2[0].transAxes)
+        ax2[0].set_title("Fast Fourier Transform\nSignal Dominated vs Noise Dominated")
+        try:
+            ax2[1].scatter(fft_noise_x[noise_peak_indexes],fft_noise_y[noise_peak_indexes], c="r", zorder=5)
+            ax2[1].plot(fft_noise_x,fft_noise_y)
+            ax2[1].text(0.96,0.8,"Noise Dominated", horizontalalignment='right', transform=ax2[1].transAxes)
+            ax2[1].set_xlabel("Frequency (Hz)")
+            ax2[1].set_ylabel("Amplitude")
+        except:
+            print("No Noise To Plot")
+
+        plt.show()
+
+    if noise_present:
+        return slope, std_err, SNR
+    else:
+        print("No noise detected (data is completely signal dominated), cannot find SNR.")
+        return slope, std_err, np.nan
