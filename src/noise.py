@@ -5,6 +5,7 @@ from scipy.stats import linregress
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt # Matplotlib plotting library
+import os
 
 def Unpack_data(filepath):
     file = np.loadtxt(filepath, delimiter=",")
@@ -187,7 +188,37 @@ def Find_Frequency(filepath, show_plot=False):
 
 if __name__ == "__main__":
 
-    filepath = "savedata/session2_repeats_05-12-2024/N5000_L4.0pi_Ncells20_5.txt"
+    # filepath = "savedata/session2_repeats_05-12-2024/N5000_L4.0pi_Ncells20_5.txt"
     
-    Signal_vs_Noise(filepath, show_plot=True)
-    Find_Frequency(filepath, show_plot=True)
+    # Signal_vs_Noise(filepath, show_plot=True)
+    # Find_Frequency(filepath, show_plot=True)#
+
+    directory = "savedata/session2_repeats_05-12-2024"
+
+    columns = ['damp', 'damp_std', 'snr', 'omega', 'omega_std']
+    rows = []
+
+    for filename in os.listdir(directory):
+        try:
+            filepath = os.path.join(directory, filename).replace('\\','/')   # example string: 'data/P1_B1_Idefault_Ndefault.mat'
+        except:
+            print(f"Error file not found.")
+            break
+        
+        print(f"\n{filename}")
+        
+        row = []
+        row.extend(Signal_vs_Noise(filepath, show_plot=False))
+        row.extend(Find_Frequency(filepath, show_plot=False))
+        
+        rows.append(row)
+        
+    df = pd.DataFrame(rows, columns=columns)
+
+    damp_avg = df['damp'].mean()
+    damp_avg_std = 1/len(df)*np.abs(np.linalg.norm(df['damp_std']))
+
+    omega_avg = df['omega'].mean()
+    omega_avg_std = 1/len(df)*np.abs(np.linalg.norm(df['omega_std']))
+
+    print(f"Means:\nDamping Rate = {damp_avg:.3f} ± {damp_avg_std:.4f}\nAngular Frequency = {omega_avg:.3f} ± {omega_avg_std:.3f}")
