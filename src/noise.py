@@ -27,10 +27,9 @@ def Unpack_data(filepath):
             else:
                 continue
         except:
-            # last_signal_index = peaks_xindex[-1]  # If there is no noise
-            last_signal_index = -1  # If there is no noise
+            last_signal_index = len(xdata)-1  # If there is no noise
             noise_present = False
-            
+            print("NoisePresent=",noise_present)
     return xdata, ydata, peaks_xindex, last_signal_index, noise_present
 
 def fft(x,y):
@@ -80,7 +79,7 @@ def Signal_vs_Noise(filepath, show_plot=False):
         ax.plot(xdata[last_signal_index:], ydata[last_signal_index:],label='Noise', color='red')
         ax.plot(xdata[last_signal_index:],np.ones_like(xdata[last_signal_index:])*noise_level, color='black', alpha=0.5, label=f'Noise Level: {noise_level:.2g}')
         ax.plot(x_peaks_signal, y_line, color='orange', label=f'Linear-Log Fit\nSlope = {slope:.3f} ± {std_err:.3f}')
-
+        ax.scatter(xdata[peaks_xindex],ydata[peaks_xindex],color="r")
         ax.set_xlabel('Time [Normalised]')
         ax.set_ylabel('First harmonic amplitude [Normalised]')
         ax.set_yscale('log')    
@@ -161,4 +160,4 @@ if __name__ == '__main__':
     filepath = 'savedata/session2_variations_05-12-2024/N5000_L4.0pi_Ncells180_T45.7858.txt'
     
     Signal_vs_Noise(filepath, show_plot=True)
-    Find_Frequency(filepath, show_plot=True)#
+    Find_Frequency(filepath, show_plot=True)
