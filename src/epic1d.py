@@ -230,7 +230,7 @@ class Summary:
         # Amplitude of the first harmonic
         fh = 2.*abs(fft(d)[1]) / float(ncells)
         
-        print(f"Time: {t} First: {fh}")
+        # print(f"Time: {t} First: {fh}")
         
         self.t.append(t)
         self.firstharmonic.append(fh)
@@ -335,14 +335,14 @@ if __name__ == "__main__":
     # Create some output classes
     p = Plot(pos, vel, ncells, L) # This displays an animated figure - Slow!
     s = Summary()                 # Calculates, stores and prints summary info
-
+    start_time = time()
     diagnostics_to_run = [s]   # Remove p to get much faster code!
     
     # Run the simulation
     pos, vel = run(pos, vel, L, ncells, 
                    out = diagnostics_to_run,        # These are called each output step
                    output_times=linspace(0.,20,50)) # The times to output (50 times between t=0 and t=20)
-    
+    end_time = time()
     # Summary stores an array of the first-harmonic amplitude
     # Make a semilog plot to see exponential damping
     plt.figure()
@@ -357,5 +357,6 @@ if __name__ == "__main__":
     plt.yscale('log')    
     plt.ioff() # This so that the windows stay open
     plt.show()
-
+    runtime = end_time - start_time
+    print(runtime)
     # SaveSummary(npart,L,ncells)
