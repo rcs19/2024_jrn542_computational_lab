@@ -4,12 +4,13 @@ import pandas as pd
 import os
 
 def generate():
-    ncells_list = arange(10,201,10)
-    for ncells in ncells_list:
-        Run_and_Save(npart=5000, ncells=ncells)
+    npart_list = [1000,2000,3000,4000,5000,7500,10000,20000,30000,50000,75000,100000]
+    for npart in npart_list:
+        print(f"npart={npart}")
+        Run_and_Save(npart=npart, ncells=20)
 
-def plot_directory():
-    directory = 'savedata/session2_variations_05-12-2024'
+def save_csv():
+    directory = 'savedata/session2_varying_npart_05-12-2024'
 
     # Dataframe (Table.csv) format
     columns = ['npart','L','ncells','runtime','damp', 'damp_std', 'noise_level', 'omega', 'omega_std']
@@ -37,7 +38,7 @@ def plot_directory():
         rows.append(row)
         
     df = pd.DataFrame(rows, columns=columns)
-    df = df.sort_values(by='ncells',ignore_index=True)
+    df = df.sort_values(by='npart',ignore_index=True)
     df.to_csv("variations_ncells_10-to-200.csv", index=False)  
 
-plot_directory()
+save_csv()
