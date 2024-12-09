@@ -44,6 +44,37 @@ def calc_density(position, ncells, L):
     Output
       density   - contains 1 if evenly distributed
     """
+    # Calculate cell size
+    dx = L / ncells
+    
+    # Convert positions to cell indices
+    p = position / dx
+    plower = np.floor(p).astype(int)  # Lower cell indices (rounds the array of positions `p` down to infinity)
+    offset = p - plower               # Offsets from the left cell
+
+    # Interpolating density within the grid of cells
+    density = np.zeros(ncells, dtype=float)             # Start with empty density grid
+    np.add.at(density, plower % ncells, 1. - offset)    # Add proportional amount of density to the lower cell  
+    np.add.at(density, (plower + 1) % ncells, offset)   # Add proportional amoutn of density to the upper cell
+
+    # Normalize density to make the average equal to 1
+    nparticles = len(position)
+    density *= float(ncells) / float(nparticles)
+
+    return density
+
+def calc_density_old(position, ncells, L):
+    """ Calculate charge density given particle positions
+    
+    Input
+      position  - Array of positions, one for each particle
+                  assumed to be between 0 and L
+      ncells    - Number of cells
+      L         - Length of the domain
+
+    Output
+      density   - contains 1 if evenly distributed
+    """
     # This is a crude method and could be made more efficient
     
     density = zeros([ncells])
@@ -320,7 +351,7 @@ def Run_and_Save(npart=1000, cell_length=4.*np.pi, ncells=20):
 if __name__ == "__main__":
     # Generate initial condition
     # 
-    npart = 5000   
+    npart = 10000   
     if False:
         # 2-stream instability
         L = 100
@@ -343,6 +374,8 @@ if __name__ == "__main__":
                    out = diagnostics_to_run,        # These are called each output step
                    output_times=linspace(0.,20,50)) # The times to output (50 times between t=0 and t=20)
     end_time = time()
+    runtime = end_time - start_time
+    print(f"Runtime: {runtime:.2f}s")
     # Summary stores an array of the first-harmonic amplitude
     # Make a semilog plot to see exponential damping
     plt.figure()
@@ -356,7 +389,6 @@ if __name__ == "__main__":
     plt.ylabel("First harmonic amplitude [Normalised]")
     plt.yscale('log')    
     plt.ioff() # This so that the windows stay open
-    plt.show()
-    runtime = end_time - start_time
-    print(runtime)
-    # SaveSummary(npart,L,ncells)
+    # plt.show()
+
+    SaveSummary(npart,L,ncells, runtime)
