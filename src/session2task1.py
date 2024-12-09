@@ -2,7 +2,7 @@
 from noise import *
 import os 
 
-directory = "savedata/session2_repeats_05-12-2024"
+directory = "savedata/vectorised"
 
 columns = ['damp', 'damp_std', 'snr', 'omega', 'omega_std']
 rows = []
@@ -30,4 +30,4 @@ damp_avg_std = 1/len(df)*np.abs(np.linalg.norm(df['damp_std']))
 omega_avg = df['omega'].mean()
 omega_avg_std = 1/len(df)*np.abs(np.linalg.norm(df['omega_std']))
 
-print(f"Means:\nDamping Rate = {damp_avg:.3f} ± {damp_avg_std:.4f}\nAngular Frequency = {omega_avg:.3f} ± {omega_avg_std:.3f}")
+print(f"\nMeans:\nDamping Rate = {damp_avg:.3f} ± {damp_avg_std:.4f}\nAngular Frequency = {omega_avg:.3f} ± {omega_avg_std:.3f}")
