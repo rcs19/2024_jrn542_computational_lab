@@ -1,4 +1,6 @@
 # Introduction to Computational Science
+This is my working repository for the computer laboratory sessions.   Original simulation code was not written by me but provided by the Introduction to Computational Sciences module [PHY00001D-S1-A]. 
+
 ## Laundau Damping
 
 Consider an applied electric field in a plasma. Particles moving at the same velocity as an applied electric field can remain in phase with it, and can gain energy from the wave as “resonant” particles. Fast moving particles are accelerated and decelerated equally by the oscillating electric field, so there is no net change in energy. Similarly, stationary particles (or particles moving slowly relative to the field) are also accelerated and decelerated, but there is no net change. 
@@ -48,9 +50,3 @@ Runs the simulation code using a 4th order Runge-Kutta method.
 - Velocity distribution is just a normal distribution centred on 0.0, with standard deviation of 1.0.
 
 `twostream(npart, L, vbeam=2)`
-
-### Classes
-
-Plot
-
-Summary
