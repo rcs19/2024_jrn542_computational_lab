@@ -7,7 +7,7 @@ from numpy import sin, cos, sqrt, random, histogram, abs, sqrt, max
 from scipy import signal
 import numpy as np
 from time import time
-
+random.seed(100)
 import matplotlib.pyplot as plt # Matplotlib plotting library
 
 try:
@@ -317,7 +317,7 @@ def SaveSummary(npart,L,ncells,timetaken):
     # print("{},{}".format(s.t[1],s.firstharmonic[1]))
 
 def Run_and_Save(npart=1000, cell_length=4.*np.pi, ncells=20):
-
+    start_t = time()    # Start time
     if False:
         # 2-stream instability
         L = 100
@@ -328,8 +328,6 @@ def Run_and_Save(npart=1000, cell_length=4.*np.pi, ncells=20):
         L = cell_length
         ncells = ncells
         pos, vel = landau(npart, L)
-    
-    start_t = time()    # Start time
 
     # Create some output classes
     s = Summary()                 # Calculates, stores and prints summary info
@@ -352,6 +350,7 @@ if __name__ == "__main__":
     # Generate initial condition
     # 
     npart = 10000   
+    start_time = time()
     if False:
         # 2-stream instability
         L = 100
@@ -366,7 +365,6 @@ if __name__ == "__main__":
     # Create some output classes
     p = Plot(pos, vel, ncells, L) # This displays an animated figure - Slow!
     s = Summary()                 # Calculates, stores and prints summary info
-    start_time = time()
     diagnostics_to_run = [s]   # Remove p to get much faster code!
     
     # Run the simulation

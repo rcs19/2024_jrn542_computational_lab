@@ -2,12 +2,14 @@
 from noise import *
 import os 
 
-directory = "savedata/vectorised"
+directory = "savedata/"
 
 columns = ['damp', 'damp_std', 'snr', 'omega', 'omega_std']
 rows = []
 
 for filename in os.listdir(directory):
+    if not filename.endswith(".txt"):
+        continue                    
     try:
         filepath = os.path.join(directory, filename).replace('\\','/')   # example string: 'data/P1_B1_Idefault_Ndefault.mat'
     except:
