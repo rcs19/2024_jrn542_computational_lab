@@ -157,7 +157,7 @@ def Find_Frequency(filepath, show_plot=False):
 
 if __name__ == '__main__':
 
-    filepath = 'savedata/session2_variations_05-12-2024/N5000_L4.0pi_Ncells180_T45.7858.txt'
+    filepath = 'savedata/npart_1000-200000/N175000_L4.0pi_Ncells20_T45.7027.txt'
     
     Signal_vs_Noise(filepath, show_plot=True)
     Find_Frequency(filepath, show_plot=True)

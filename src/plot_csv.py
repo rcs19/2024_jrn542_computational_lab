@@ -30,9 +30,9 @@ for i, var in enumerate(ydatas):
     elif var=='omega':
         ax[i].axhline(1.413, color = "black", ls="--", label="Analytical Result")
 
-# ax[0].set_title('Varying Number of Cells')
+# ax[0].set_title('Varying Number of Cells (npart=5000)')
 # ax[-1].set_xlabel('Number of Cells')
-ax[0].set_title('Parameters vs Number of Particles')
+ax[0].set_title('Parameters vs Number of Particles (ncells=20)')
 ax[-1].set_xlabel('Number of Particles')
 
 plt.legend()
