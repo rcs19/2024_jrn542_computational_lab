@@ -5,9 +5,8 @@
 from numpy import arange, concatenate, zeros, linspace, floor, array, pi
 from numpy import sin, cos, sqrt, random, histogram, abs, sqrt, max
 from scipy import signal
-import numpy as np
 from time import time
-random.seed(100)
+import numpy as np
 import matplotlib.pyplot as plt # Matplotlib plotting library
 
 try:
