@@ -105,11 +105,14 @@ def Find_Frequency(filepath, show_plot=False):
 
     x_fft, y_fft =  fft(xdata[:last_signal_index+1], ydata[:last_signal_index+1])
     peaks, properties = signal.find_peaks(y_fft)
-
-    maxpeak_index = peaks[np.argmax(y_fft[peaks])]
-    signal_maxpeak_freq = x_fft[maxpeak_index]
-    signal_maxpeak_amp = y_fft[maxpeak_index]
-
+    try:
+        maxpeak_index = peaks[np.argmax(y_fft[peaks])]
+        signal_maxpeak_freq = x_fft[maxpeak_index]
+        signal_maxpeak_amp = y_fft[maxpeak_index]
+    except:
+        print("No max peak in FFT")
+        return np.nan, np.nan
+     
     condition = (x_fft>0.1) # & (x_fft<1.2) 
     x_fft_masked = x_fft[condition]
     y_fft_masked = y_fft[condition]
@@ -157,7 +160,7 @@ def Find_Frequency(filepath, show_plot=False):
 
 if __name__ == '__main__':
 
-    filepath = 'savedata/npart_1000-200000/N175000_L4.0pi_Ncells20_T45.7027.txt'
+    filepath = 'savedata/lcell_1pi-20pi_npart5000_ncell40/N5000_L2.5pi_Ncells40_T1.6173.txt'
     
     Signal_vs_Noise(filepath, show_plot=True)
     Find_Frequency(filepath, show_plot=True)
