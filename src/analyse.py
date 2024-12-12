@@ -11,14 +11,14 @@ def generate():
         Run_and_Save(npart=npart, ncells=20)
 
 def generate_parallel(n_jobs=4):
-    ncell_list = arange(10,201,10)
+    L_list = arange(1,20.1,0.5)*np.pi
     timestart=time()
-    Parallel(n_jobs=n_jobs)(delayed(Run_and_Save)(npart=5000, ncells=ncells) for ncells in ncell_list)
+    Parallel(n_jobs=n_jobs)(delayed(Run_and_Save)(npart=20000, cell_length=L, ncells=40) for L in L_list)
     timeend=time()
     print(f"Total Job Runtime (n_jobs={n_jobs}): {timeend-timestart}s")
 
 def save_csv():
-    directory = 'savedata/ncell_10-200'
+    directory = 'savedata/lcell_1pi-20pi_npart20000_ncell40'
 
     # Dataframe (Table.csv) format
     columns = ['npart','L','ncells','runtime','damp', 'damp_std', 'noise_level', 'omega', 'omega_std']
@@ -46,7 +46,7 @@ def save_csv():
         rows.append(row)
         
     df = pd.DataFrame(rows, columns=columns)
-    df = df.sort_values(by=['npart','ncells'],ignore_index=True)
-    df.to_csv("ncell_10-200.csv", index=False)  
+    df = df.sort_values(by=['npart','ncells','L'],ignore_index=True)
+    df.to_csv("savedata/lcell_1pi-20pi_npart20000_ncell40.csv", index=False)  
 
 save_csv()
